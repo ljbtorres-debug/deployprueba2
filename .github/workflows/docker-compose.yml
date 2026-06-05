@@ -1,0 +1,78 @@
+name: Deploy docker-compose services
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create docker-compose.yml
+        run: |
+          cat > docker-compose.yml <<'EOF'
+          version: '3.9'
+
+          services:
+
+            db:
+
+              image: postgres:17-alpine
+
+              container_name: postgresdb
+
+              environment:
+                POSTGRES_DB: empresa
+                POSTGRES_USER: admin
+                POSTGRES_PASSWORD: admin123
+
+              ports:
+                - "5432:5432"
+
+              volumes:
+                - postgres_data:/var/lib/postgresql/data
+
+            pgadmin:
+
+              image: dpage/pgadmin4
+
+              container_name: pgadmin
+
+              environment:
+                PGADMIN_DEFAULT_EMAIL: admin@correo.com
+                PGADMIN_DEFAULT_PASSWORD: admin123
+
+              ports:
+                - "8080:80"
+
+              depends_on:
+                - db
+
+            app:
+
+              image: ghcr.io/usuario/devops-flask-postgres:2.0.0
+
+              container_name: flaskapp
+
+              ports:
+                - "5000:5000"
+
+              depends_on:
+                - db
+
+          volumes:
+            postgres_data:
+          EOF
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: List running containers
+        run: docker ps -a
