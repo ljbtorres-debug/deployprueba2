@@ -42,7 +42,7 @@ services:
     restart: unless-stopped
 
   app:
-    image: ghcr.io/usuario/devops-flask-postgres:2.0.0
+    image: ghcr.io/ljbtorres-debug/holataller:3.1.1
     container_name: flaskapp
 
     ports:
