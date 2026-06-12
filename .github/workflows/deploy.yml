@@ -22,11 +22,11 @@ jobs:
     # 2. Construimos la imagen y le asignamos los DOS tags exigidos (1.0.0 y latest)
     - name: Construir imagen de docker
       run: |
-        docker build -t ghcr.io/ljbtorres-debug/holataller:1.0.0 .
+        docker build -t ghcr.io/ljbtorres-debug/holataller:1.1.0 .
         docker tag ghcr.io/ljbtorres-debug/holataller:1.0.0 ghcr.io/ljbtorres-debug/holataller:latest
     
     # 3. Subimos ambos tags a GHCR
     - name: Publicar la imagen creada.
       run: |
-        docker push ghcr.io/ljbtorres-debug/holataller:1.0.0
+        docker push ghcr.io/ljbtorres-debug/holataller:1.1.0
         docker push ghcr.io/ljbtorres-debug/holataller:latest
