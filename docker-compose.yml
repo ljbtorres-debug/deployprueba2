@@ -1,63 +1,66 @@
 version: '3.9'
 
 services:
-
   db:
     image: postgres:17-alpine
     container_name: postgresdb
-
     environment:
-      POSTGRES_DB: empresa
+      POSTGRES_DB: tienda
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin123
-
-   
-
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - backend
-
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d tienda"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
-
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@correo.com
       PGADMIN_DEFAULT_PASSWORD: admin123
-
     ports:
       - "8080:80"
-
     depends_on:
-      - db
-
+      db:
+        condition: service_healthy
     networks:
       - backend
-
-    restart: unless-stopped
+      - frontend
 
   app:
-    image: ghcr.io/ljbtorres-debug/holataller:latest
+    image: ghcr.io/cristoferasg/holataller:1.0.0
     container_name: flaskapp
-
+    environment:
+      APP_NAME: "Tienda DevOps"
+      APP_VERSION: "2.0.0" 
+      DB_HOST: db
+      DB_NAME: tienda
+      DB_USER: admin
+      DB_PASSWORD: admin123
+      DB_PORT: "5432"
     ports:
       - "5001:5001"
-
     depends_on:
-      - db
-
+      db:
+        condition: service_healthy
     networks:
       - backend
-
-    restart: unless-stopped
+      - frontend
 
 volumes:
   postgres_data:
 
 networks:
   backend:
+    driver: bridge
+  frontend:
     driver: bridge
