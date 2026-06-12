@@ -37,7 +37,7 @@ services:
       - frontend
 
   app:
-    image: ghcr.io/cristoferasg/holataller:2.0.0
+    image: ghcr.io/ljbtorres-debug/holataller:2.0.0
     container_name: flaskapp
     environment:
       APP_NAME: "Tienda DevOps"
